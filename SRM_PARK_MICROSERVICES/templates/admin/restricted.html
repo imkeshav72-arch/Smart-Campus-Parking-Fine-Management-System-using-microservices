@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block heading %}Restricted Students{% endblock %}
+{% block content %}
+<div class="card"><p class="muted">Students with an approved, unpaid fine cannot book parking for days after the fine date. Access returns automatically after payment or an accepted appeal.</p>
+<table><thead><tr><th>Student</th><th>Roll no</th><th>Unpaid fines</th><th>Total</th><th>Since</th><th>Appeal</th></tr></thead><tbody>
+{% for r in rows %}<tr><td>{{ r.s.name }}</td><td>{{ r.s.roll_no }}</td><td>{% for f in r.fines %}{{ f.reason }}<br>{% endfor %}</td><td><b>₹{{ '%.0f'|format(r.total) }}</b></td>
+<td>{{ r.since.strftime('%d %b %Y') }}</td><td>{% if r.appeal %}<a href="{{ url_for('admin_appeals') }}">Pending</a>{% else %}—{% endif %}</td></tr>
+{% else %}<tr><td colspan="6" class="empty">No restricted students right now.</td></tr>{% endfor %}
+</tbody></table></div>
+{% endblock %}

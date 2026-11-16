@@ -1,0 +1,27 @@
+{% macro badge(text) %}<span class="badge b-{{ text|lower|replace(' ','-') }}">{{ text }}</span>{% endmacro %}
+
+{% macro slot_grid(slots, statuses, selectable=False, vtype=None) %}
+{% for zone, zone_slots in slots|groupby('zone') %}
+  <h3 class="sec">{% if zone == 'BEL' %}BEL Block{% elif zone == 'JAVA' %}Java Block{% elif zone == 'FACULTY' %}Faculty Parking{% elif zone == 'VIP' %}VIP Parking{% else %}{{ zone }} Parking{% endif %}</h3>
+  <div class="slot-grid">
+    {% for s in zone_slots %}
+      {% set st = statuses[s.id] %}
+      {% set pick = selectable and st == 'Available' and s.vtype == vtype and not s.is_reserved %}
+      <label class="slot s-{{ st|lower }} {{ 'pick' if pick }}" title="{{ s.note or '' }}">
+        {% if pick %}<input type="radio" name="slot_id" value="{{ s.id }}">{% endif %}
+        <b>{{ s.code }}</b><span>{{ 'Reserved' if s.is_reserved else st }}</span><small>{{ s.vtype }}{% if s.is_reserved %} · Staff only{% endif %}</small>
+      </label>
+    {% else %}<span class="muted">No slots in this section.</span>{% endfor %}
+  </div>
+{% endfor %}
+<div class="legend">
+  <span><i style="background:#1c6b3a"></i>Available</span><span><i style="background:#a8730a"></i>Booked</span>
+  <span><i style="background:#a42626"></i>Occupied</span><span><i style="background:#59449a"></i>Reserved</span>
+</div>
+{% endmacro %}
+
+{% macro flashes() %}
+{% with msgs = get_flashed_messages(with_categories=true) %}
+  {% for cat, m in msgs %}<div class="flash {{ cat }}"><span>{{ m }}</span><button type="button" aria-label="Close">×</button></div>{% endfor %}
+{% endwith %}
+{% endmacro %}

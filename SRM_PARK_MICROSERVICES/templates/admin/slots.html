@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block heading %}Parking Areas & Slots{% endblock %}
+{% block content %}
+<div class="card"><h2>Campus parking capacity</h2><div class="grid g4"><div><b>BEL Block</b><h2>10 Car</h2></div><div><b>Java Block</b><h2>8 Car</h2></div><div><b>Faculty</b><h2>10 Reserved</h2></div><div><b>VIP</b><h2>5 Reserved</h2></div></div><p class="muted">Total: 33 car slots. Faculty and VIP slots are not bookable by students.</p></div>
+<div class="card mt"><h2>Add a slot</h2><form method="post"><div class="row">
+  <div><label class="f">Code</label><input type="text" name="code" placeholder="BEL-C11" required></div>
+  <div><label class="f">Type</label><select name="vtype"><option>Car</option><option>Bike</option></select></div>
+  <div><label class="f">Parking area</label><select name="zone"><option value="BEL">BEL</option><option value="JAVA">Java</option><option value="FACULTY">Faculty</option><option value="VIP">VIP</option></select></div>
+  <div><label class="f">Note</label><input type="text" name="note"></div>
+  <div><label class="check"><input type="checkbox" name="is_reserved"> Reserved</label></div>
+  <div><button class="btn">Add slot</button></div></div></form></div>
+{% for zone, zone_slots in slots|groupby('zone') %}
+<div class="card mt"><h2>{% if zone == 'BEL' %}BEL Block{% elif zone == 'JAVA' %}Java Block{% elif zone == 'FACULTY' %}Faculty Parking{% elif zone == 'VIP' %}VIP Parking{% else %}{{ zone }}{% endif %} — {{ zone_slots|length }} slots</h2>
+<table><thead><tr><th>Code</th><th>Type</th><th>Reserved</th><th>Note</th><th></th></tr></thead><tbody>
+{% for s in zone_slots %}<tr><td><b>{{ s.code }}</b></td><td>{{ s.vtype }}</td><td>{{ 'Yes' if s.is_reserved else 'No' }}</td><td>{{ s.note }}</td>
+<td class="right"><a class="btn btn-sm btn-ghost" href="{{ url_for('admin_slot_edit', sid=s.id) }}">Edit</a>
+<form class="inline" method="post" action="{{ url_for('admin_slot_delete', sid=s.id) }}" data-confirm="Delete slot {{ s.code }}?"><button class="btn btn-sm btn-bad">Delete</button></form></td></tr>{% endfor %}
+</tbody></table></div>
+{% endfor %}
+{% endblock %}

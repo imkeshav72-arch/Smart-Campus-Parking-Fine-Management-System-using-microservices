@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block heading %}Pay Fine{% endblock %}
+{% block content %}
+<div class="card" style="max-width:620px;margin:auto;text-align:center">
+  <h2>Pay Fine</h2>
+  <p>{{ fine.reason }}{% if fine.offence %} ({{ fine.offence.vehicle_number }}){% endif %}</p>
+  <div class="amount" style="font-size:2rem;font-weight:800;margin:12px 0">₹{{ '%.2f'|format(fine.amount) }}</div>
+
+  <form method="post" action="{{ url_for('student_pay_start', fid=fine.id) }}">
+    <button class="btn btn-y" style="font-size:1.05rem;padding:12px 22px">💳 Pay Online (Demo Gateway – QR / Card)</button>
+  </form>
+  <p class="muted mt" style="font-size:.85rem">You will be taken to the <b>Payment Microservice</b> checkout page with a Razorpay-style fake QR and test card form. No real money is charged.</p>
+
+  {% if qr_file and upi_link %}
+  <hr style="margin:22px 0;border:0;border-top:1px solid #e3e7ec">
+  <h3>Or: Direct campus UPI QR</h3>
+  <img src="{{ url_for('static', filename='qrcodes/' + qr_file) }}" alt="UPI payment QR code" style="width:230px;height:230px;max-width:100%;border:1px solid #ddd;padding:10px;border-radius:12px;background:white">
+  <p class="muted mt">Scan using Google Pay, PhonePe or Paytm. Admin verifies the UTR against the bank statement.</p>
+  <p><b>UPI ID:</b> {{ upi_id }}</p>
+  <form method="post" action="{{ url_for('student_pay_process', fid=fine.id) }}" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+    <input name="utr" placeholder="Enter UTR / reference" required style="padding:9px;border:1px solid #cfd7e4;border-radius:8px">
+    <button class="btn btn-sm">Submit UTR</button>
+  </form>
+  {% endif %}
+  <a class="btn btn-ghost mt" href="{{ url_for('student_offences') }}">Back to My Fines</a>
+</div>
+{% endblock %}
+{% block scripts %}{% endblock %}

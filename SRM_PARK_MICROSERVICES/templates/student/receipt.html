@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block heading %}Payment Receipt{% endblock %}
+{% block content %}
+<div class="card receipt"><span class="demo-tag">{% if p.method.startswith('Gateway') %}PAID VIA PAYMENT SERVICE (DEMO){% else %}ADMIN VERIFIED UPI PAYMENT{% endif %}</span>
+<h2 style="margin-top:10px">Payment verified ✔</h2><div class="amount">₹{{ '%.2f'|format(p.amount) }}</div>
+<dl class="kv mt"><dt>Receipt no</dt><dd>RCPT-{{ '%05d'|format(p.id) }}</dd><dt>Transaction ID</dt><dd>{{ p.txn_id }}</dd><dt>Order ID</dt><dd>{{ p.order_id }}</dd>
+<dt>Date</dt><dd>{{ p.created_at.strftime('%d %b %Y, %H:%M') }}</dd><dt>Student</dt><dd>{{ p.student.name }} ({{ p.student.roll_no }})</dd>
+<dt>Fine for</dt><dd>{{ p.fine.reason }}</dd><dt>Method</dt><dd>{{ p.method }}</dd></dl>
+<p class="mt no-print"><a class="btn" href="{{ url_for('student_receipt_download', pid=p.id) }}">Download receipt (PNG)</a>
+<button class="btn btn-ghost" onclick="window.print()">Print</button> <a class="btn btn-ghost" href="{{ url_for('student_parking') }}">Book parking</a></p>
+<p class="muted">{% if p.method.startswith('Gateway') %}Verified by the Payment microservice (signature + server check). Demo payment, no real money charged.{% else %}This receipt is generated only after admin verification of the UPI transaction.{% endif %}</p></div>
+{% endblock %}

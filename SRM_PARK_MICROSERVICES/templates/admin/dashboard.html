@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block heading %}Admin Dashboard{% endblock %}
+{% block content %}
+<div class="grid g4">
+  <div class="card stat"><div class="n">{{ stats.students }}</div><div class="l">Students</div></div>
+  <div class="card stat"><div class="n">{{ stats.vehicles }}</div><div class="l">Vehicles</div></div>
+  <div class="card stat g"><div class="n">{{ stats.bookings }}</div><div class="l">Bookings</div></div>
+  <div class="card stat y"><div class="n">{{ stats.offences }}</div><div class="l">Offence reports</div></div>
+  <div class="card stat"><div class="n">{{ stats.fines }}</div><div class="l">Fines issued</div></div>
+  <div class="card stat r"><div class="n">₹{{ '%.0f'|format(stats.pending_amount) }}</div><div class="l">Pending fines</div></div>
+  <div class="card stat g"><div class="n">₹{{ '%.0f'|format(stats.collected) }}</div><div class="l">Payments recorded</div></div>
+  <div class="card stat r"><div class="n">{{ stats.restricted }}</div><div class="l"><a href="{{ url_for('admin_restricted') }}">Restricted students</a></div></div>
+</div>
+{% if stats.reviews or stats.appeals %}<div class="banner" style="border-left-color:var(--line)"><b style="color:inherit">To do:</b>
+  <a href="{{ url_for('admin_offences', status='Pending') }}">{{ stats.reviews }} offence report(s) to verify</a> · <a href="{{ url_for('admin_appeals') }}">{{ stats.appeals }} appeal(s) pending</a></div>{% endif %}
+<div class="grid g2 mt">
+  <div class="card bars"><h2>Offences by type</h2>
+    {% set mx = by_type.values()|max or 1 %}
+    {% for t, n in by_type.items() %}<div class="b"><span>{{ t }}</span><div class="t"><i style="width:{{ n / mx * 100 }}%"></i></div><b>{{ n }}</b></div>{% endfor %}</div>
+  <div class="card bars"><h2>Bookings, last 7 days</h2>
+    {% set mx2 = (per_day|map(attribute=1)|max) or 1 %}
+    {% for label, n in per_day %}<div class="b"><span>{{ label }}</span><div class="t"><i style="width:{{ n / mx2 * 100 }}%;background:var(--ok)"></i></div><b>{{ n }}</b></div>{% endfor %}
+    <p class="muted mt">Slots: {{ slot_counts.get('Car',0) }} car · {{ slot_counts.get('Bike',0) }} bike</p></div>
+</div>
+
+<div class="card mt">
+  <div class="page-head">
+    <h2>Student Parking Bookings</h2>
+    <span class="muted">Latest 50 real student bookings</span>
+  </div>
+  <div style="overflow-x:auto">
+    <table>
+      <thead><tr><th>Booking ID</th><th>Student Name</th><th>Roll Number</th><th>Vehicle Number</th><th>Slot</th><th>Booking Date</th><th>Time</th><th>Status</th></tr></thead>
+      <tbody>
+      {% for b in latest_bookings %}
+        <tr>
+          <td class="code">{{ b.booking_code }}</td>
+          <td>{{ b.student.name }}</td>
+          <td>{{ b.student.roll_no }}</td>
+          <td>{{ b.vehicle.number }}</td>
+          <td>{{ b.slot.code }}</td>
+          <td>{{ b.date.strftime('%d %b %Y') }}</td>
+          <td>{{ b.start_time.strftime('%H:%M') }}–{{ b.end_time.strftime('%H:%M') }}</td>
+          <td>{{ b.status }}</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="8" class="empty">No student bookings yet. New bookings will appear here.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+<div class="card mt"><div class="page-head"><h2>🚘 Vehicles currently inside campus</h2><span class="muted">{{ parked_now|length }} parked vehicle(s)</span></div><div style="overflow-x:auto"><table><thead><tr><th>Vehicle</th><th>Student</th><th>Register No.</th><th>Slot</th><th>Booking</th><th>Entry date</th></tr></thead><tbody>
+{% for b in parked_now %}<tr><td><b>{{ b.vehicle.number }}</b></td><td>{{ b.student.name }}</td><td>{{ b.student.roll_no }}</td><td>{{ b.slot.code }}</td><td class="code">{{ b.booking_code }}</td><td>{{ b.date.strftime('%d %b %Y') }}</td></tr>{% else %}<tr><td colspan="6" class="empty">No vehicles currently parked.</td></tr>{% endfor %}
+</tbody></table></div></div>
+<div class="card mt"><div class="page-head"><h2>Recent fine payments</h2><a class="btn btn-sm" href="{{ url_for('admin_payments') }}">Manage all payments</a></div><div style="overflow-x:auto"><table><thead><tr><th>Date</th><th>Student</th><th>Fine</th><th>Method</th><th>Reference</th><th>Amount</th><th>Status</th></tr></thead><tbody>
+{% for p in recent_payments %}<tr><td>{{ p.created_at.strftime('%d %b %Y %H:%M') }}</td><td>{{ p.student.name }}<br><small>{{ p.student.roll_no }}</small></td><td>{{ p.fine.reason }}</td><td>{{ p.method or '—' }}</td><td class="code">{{ p.txn_id or p.order_id or '—' }}</td><td>₹{{ '%.2f'|format(p.amount or 0) }}</td><td>{{ p.status }}</td></tr>{% else %}<tr><td colspan="7" class="empty">No payments recorded.</td></tr>{% endfor %}
+</tbody></table></div></div>
+
+<div class="card mt"><div class="page-head"><h2>Registered SRMIST Students</h2><span class="muted">{{ all_students|length }} student account(s)</span></div><div style="overflow-x:auto"><table><thead><tr><th>Name</th><th>Register Number</th><th>SRMIST Email</th><th>Phone</th><th>Account Created</th></tr></thead><tbody>
+{% for student in all_students %}<tr><td>{{ student.name }}</td><td class="code">{{ student.roll_no }}</td><td>{{ student.email }}</td><td>{{ student.phone or '—' }}</td><td>{{ student.created_at.strftime('%d %b %Y, %I:%M %p') if student.created_at else '—' }}</td></tr>{% else %}<tr><td colspan="5" class="empty">No student accounts registered yet.</td></tr>{% endfor %}
+</tbody></table></div></div>

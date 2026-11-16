@@ -1,0 +1,43 @@
+{% from '_macros.html' import flashes %}
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Dashboard{% endblock %} · Smart Campus Parking</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head><body>
+{% if current_user.is_authenticated %}
+{% set menus = {
+ 'student': [('student_dashboard','Dashboard','🏠'),('student_vehicles','My Vehicles','🚗'),('student_parking','Book Parking','🅿️'),('student_bookings','Booking History','🗓️'),('student_offences','My Fines','💰'),('notifications','Notifications','🔔')],
+ 'guard': [('guard_dashboard','Dashboard','🏠'),('guard_slots','Parking Slots','🅿️'),('guard_verify','Verify QR','📷'),('guard_report','Report Offence','🚨'),('notifications','Notifications','🔔')],
+ 'admin': [('admin_dashboard','Dashboard','📊'),('admin_slots','Parking Slots','🅿️'),('admin_rates','Fine Amounts','💰'),('admin_offences','Offence Reports','🚨'),('admin_appeals','Appeals','⚖️'),('admin_payments','Payments','💳'),('admin_services','Microservices','🧩'),('admin_restricted','Restricted Students','⛔'),('notifications','Notifications','🔔')]
+} %}
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">SmartCampus<small>Offence, Fine &amp; Parking</small></div>
+    <nav>
+      {% for ep, label, icon in menus[current_user.role] %}
+        <a href="{{ url_for(ep) }}" class="{{ 'active' if request.endpoint == ep }}"><span>{{ icon }}</span>{{ label }}</a>
+      {% endfor %}
+      <a href="{{ url_for('logout') }}"><span>🚪</span>Sign out</a>
+    </nav>
+  </aside>
+  <div class="main">
+    <header class="topbar">
+      <button class="menu-btn" id="menuBtn" aria-label="Menu">☰</button>
+      <strong>{% block heading %}{% endblock %}</strong><span class="sp"></span>
+      <a class="bell" href="{{ url_for('notifications') }}" title="Notifications">🔔{% if unread %}<b>{{ unread }}</b>{% endif %}</a>
+      <span>{{ current_user.name }} <span class="badge">{{ current_user.role|capitalize }}</span></span>
+    </header>
+    <main class="content">
+      {{ flashes() }}
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</div>
+{% else %}
+  {{ flashes() }}
+  {% block public %}{% endblock %}
+{% endif %}
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body></html>

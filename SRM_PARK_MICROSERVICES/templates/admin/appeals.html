@@ -1,0 +1,13 @@
+{% extends 'base.html' %}{% from '_macros.html' import badge %}
+{% block heading %}Student Appeals{% endblock %}
+{% block content %}
+{% for a in items %}
+<div class="card" style="margin-bottom:14px"><div class="page-head" style="margin:0"><h3>{{ a.student.name }} — {{ a.offence.offence_type }} ({{ a.offence.vehicle_number }})</h3>{{ badge(a.status) }}</div>
+<p class="muted">Filed {{ a.created_at.strftime('%d %b %Y') }} · Fine: {{ ('₹' + '%.0f'|format(a.offence.fine.amount) + ' ' + a.offence.fine.status) if a.offence.fine else 'none' }} · <a href="{{ url_for('admin_offence_review', oid=a.offence_id) }}">View evidence</a></p>
+<p>“{{ a.message }}”</p>
+{% if a.status == 'Pending' %}<form method="post"><input type="hidden" name="appeal_id" value="{{ a.id }}">
+<input type="text" name="response" placeholder="Response to the student (optional)">
+<p><button class="btn btn-ok btn-sm" name="decision" value="accept">Accept (waive fine)</button> <button class="btn btn-bad btn-sm" name="decision" value="reject">Reject</button></p></form>
+{% else %}<p><b>Decision:</b> {{ a.status }}{% if a.admin_response %} — {{ a.admin_response }}{% endif %}</p>{% endif %}</div>
+{% else %}<div class="card empty">No appeals have been submitted.</div>{% endfor %}
+{% endblock %}

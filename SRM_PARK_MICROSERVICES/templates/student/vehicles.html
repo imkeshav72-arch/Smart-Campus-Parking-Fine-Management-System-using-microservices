@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block heading %}My Vehicles{% endblock %}
+{% block content %}
+<div class="grid g2">
+<div class="card"><h2>Add a vehicle</h2>
+<form method="post">
+  <label class="f">Vehicle number</label><input type="text" name="number" placeholder="TN 21 AB 1234" required>
+  <label class="f">Type</label><select name="vtype"><option>Car</option><option>Bike</option></select>
+  <label class="f">Model (optional)</label><input type="text" name="model" placeholder="Honda Activa">
+  <p><button class="btn">Save vehicle</button></p>
+</form></div>
+<div class="card"><h2>Registered vehicles</h2>
+<table><thead><tr><th>Number</th><th>Type</th><th>Model</th><th></th></tr></thead><tbody>
+{% for v in vehicles %}<tr><td><b>{{ v.number }}</b></td><td>{{ '🚗' if v.vtype=='Car' else '🏍️' }} {{ v.vtype }}</td><td>{{ v.model }}</td>
+<td class="right"><form class="inline" method="post" action="{{ url_for('student_vehicle_delete', vid=v.id) }}" data-confirm="Remove this vehicle?"><button class="btn btn-sm btn-bad">Remove</button></form></td></tr>
+{% else %}<tr><td colspan="4" class="empty">No vehicles yet. Add your car or bike on the left.</td></tr>{% endfor %}
+</tbody></table></div>
+</div>
+{% endblock %}

@@ -1,0 +1,4 @@
+{% extends 'base.html' %}
+{% block public %}<div class="plain-page card"><h2>Oops</h2><p>{{ msg }}</p><a class="btn" href="{{ url_for('login') }}">Go to home</a></div>{% endblock %}
+{% block heading %}Oops{% endblock %}
+{% block content %}<div class="card"><h2>Oops</h2><p>{{ msg }}</p><a class="btn" href="{{ url_for('login') }}">Go to my dashboard</a></div>{% endblock %}

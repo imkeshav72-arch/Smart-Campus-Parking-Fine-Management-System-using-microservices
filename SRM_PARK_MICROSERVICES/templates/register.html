@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block public %}
+<div class="plain-page card">
+  <h2>Student registration</h2>
+  <form method="post">
+    <label class="f">Full name</label><input type="text" name="name" required>
+    <label class="f">Roll number</label><input type="text" name="roll_no" required>
+    <label class="f">Email</label><input type="email" name="email" required>
+    <label class="f">Phone</label><input type="text" name="phone">
+    <label class="f">Password (min 6 characters)</label><input type="password" name="password" required minlength="6">
+    <p><button class="btn">Create account</button> <a href="{{ url_for('login') }}">Back to sign in</a></p>
+  </form>
+</div>
+{% endblock %}

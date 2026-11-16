@@ -1,0 +1,10 @@
+{% extends 'base.html' %}{% from '_macros.html' import slot_grid %}
+{% block heading %}Parking Slots{% endblock %}
+{% block content %}
+<form method="get" class="card"><div class="row">
+  <div><label class="f">Date</label><input type="date" name="date" value="{{ d.isoformat() }}"></div>
+  <div><label class="f">From</label><input type="time" name="start" value="{{ st.strftime('%H:%M') }}"></div>
+  <div><label class="f">To</label><input type="time" name="end" value="{{ et.strftime('%H:%M') }}"></div>
+  <div><button class="btn">Show status</button></div></div></form>
+<div class="card mt">{{ slot_grid(slots, statuses) }}</div>
+{% endblock %}

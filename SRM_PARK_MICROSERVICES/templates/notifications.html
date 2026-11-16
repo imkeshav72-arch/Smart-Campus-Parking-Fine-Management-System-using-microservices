@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block heading %}Notifications{% endblock %}
+{% block content %}
+<div class="card">
+  <table><thead><tr><th>When</th><th>Message</th></tr></thead><tbody>
+  {% for n in items %}<tr><td class="muted">{{ n.created_at.strftime('%d %b, %H:%M') }}</td><td>{{ n.message }}</td></tr>
+  {% else %}<tr><td colspan="2" class="empty">No notifications yet.</td></tr>{% endfor %}
+  </tbody></table>
+</div>
+{% endblock %}

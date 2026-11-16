@@ -1,0 +1,23 @@
+{% extends 'base.html' %}{% from '_macros.html' import badge %}
+{% block heading %}Security Guard – Gate Control{% endblock %}
+{% block content %}
+<div class="grid g4">
+  <div class="card stat"><div class="n">{{ stats.today }}</div><div class="l">Bookings today</div></div>
+  <div class="card stat r"><div class="n">{{ stats.occupied }}</div><div class="l">Vehicles inside campus now</div></div>
+  <div class="card stat y"><div class="n">{{ stats.reports }}</div><div class="l">My violation reports</div></div>
+  <div class="card stat g"><div class="n">{{ stats.pending }}</div><div class="l">Reports awaiting admin</div></div>
+</div>
+<div class="card mt"><div class="page-head"><h2>🚘 Currently parked vehicles</h2><div><a class="btn btn-sm" href="{{ url_for('guard_verify') }}">📷 Scan parking QR</a> <a class="btn btn-sm btn-y" href="{{ url_for('guard_report') }}">Report violation</a></div></div>
+<div style="overflow-x:auto"><table><thead><tr><th>Vehicle</th><th>Student</th><th>Register No.</th><th>Slot</th><th>Entry date</th><th>Booking</th><th>Action</th></tr></thead><tbody>
+{% for b in parked %}<tr><td><b>{{ b.vehicle.number }}</b><br><small>{{ b.vehicle.vtype }}</small></td><td>{{ b.student.name }}</td><td>{{ b.student.roll_no }}</td><td>{{ b.slot.code }}</td><td>{{ b.date.strftime('%d %b %Y') }}</td><td class="code">{{ b.booking_code }}</td><td><a class="btn btn-sm" href="{{ url_for('guard_verify', code=b.booking_code) }}">View / Exit</a></td></tr>
+{% else %}<tr><td colspan="7" class="empty">No vehicles are currently marked as parked.</td></tr>{% endfor %}
+</tbody></table></div></div>
+<div class="card mt"><div class="page-head"><h2>Today's bookings</h2><a class="btn btn-sm" href="{{ url_for('guard_slots') }}">View parking slots</a></div>
+<div style="overflow-x:auto"><table><thead><tr><th>Booking</th><th>Student</th><th>Vehicle</th><th>Slot</th><th>Time</th><th>Status</th><th></th></tr></thead><tbody>
+{% for b in bookings %}<tr><td class="code">{{ b.booking_code }}</td><td>{{ b.student.name }}<br><small>{{ b.student.roll_no }}</small></td><td>{{ b.vehicle.number }}</td><td>{{ b.slot.code }}</td><td>{{ b.start_time.strftime('%H:%M') }}–{{ b.end_time.strftime('%H:%M') }}</td><td>{{ badge(b.status) }}</td><td><a href="{{ url_for('guard_verify', code=b.booking_code) }}">Verify</a></td></tr>
+{% else %}<tr><td colspan="7" class="empty">No bookings for today.</td></tr>{% endfor %}
+</tbody></table></div></div>
+<div class="card mt"><h2>My recent violation reports</h2><div style="overflow-x:auto"><table><thead><tr><th>Date</th><th>Vehicle</th><th>Offence</th><th>Status</th></tr></thead><tbody>
+{% for o in mine %}<tr><td>{{ o.created_at.strftime('%d %b, %H:%M') }}</td><td>{{ o.vehicle_number }}</td><td>{{ o.offence_type }}</td><td>{{ badge(o.status) }}</td></tr>{% else %}<tr><td colspan="4" class="empty">No reports submitted yet.</td></tr>{% endfor %}
+</tbody></table></div></div>
+{% endblock %}

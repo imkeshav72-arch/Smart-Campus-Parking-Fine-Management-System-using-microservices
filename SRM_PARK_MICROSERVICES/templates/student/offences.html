@@ -1,0 +1,12 @@
+{% extends 'base.html' %}{% from '_macros.html' import badge %}
+{% block heading %}My Fines{% endblock %}
+{% block content %}
+<div class="banner">All fines issued to your student account are listed here. Select <b>Pay Fine</b> to pay using the demo payment gateway (fake QR / card).</div>
+{% if pending_total %}<div class="banner"><b>₹{{ '%.0f'|format(pending_total) }} unpaid.</b> Please pay your pending fines to restore parking booking access.</div>{% endif %}
+<div class="card"><h2>Fine Details</h2>
+<table><thead><tr><th>Date</th><th>Fine / Reason</th><th>Amount</th><th>Payment Status</th><th>Action</th></tr></thead><tbody>
+{% for f in fines %}<tr><td>{{ f.created_at.strftime('%d %b %Y') }}</td><td>{{ f.reason or 'Campus rule violation' }}</td><td>₹{{ '%.0f'|format(f.amount) }}</td><td>{{ badge(f.status) }}</td>
+<td class="right">{% if f.status == 'Pending' %}<a class="btn btn-sm btn-y" href="{{ url_for('student_pay', fid=f.id) }}">Pay Fine</a>{% elif f.status == 'Paid' %}<span class="muted">Paid</span>{% else %}<span class="muted">{{ f.status }}</span>{% endif %}</td></tr>
+{% else %}<tr><td colspan="5" class="empty">No fines assigned to your account.</td></tr>{% endfor %}
+</tbody></table></div>
+{% endblock %}

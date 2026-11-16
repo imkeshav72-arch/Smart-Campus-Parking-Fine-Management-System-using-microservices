@@ -1,0 +1,68 @@
+{% extends 'base.html' %}{% from '_macros.html' import slot_grid %}
+{% block heading %}Book Parking{% endblock %}
+{% block content %}
+{% if blocked %}
+<div class="banner"><b>Booking is restricted for {{ d.strftime('%d %b %Y') }}.</b> Unpaid fine: ₹{{ '%.0f'|format(blocked.amount) }} — {{ blocked.reason }}.
+  <a class="btn btn-sm btn-y" href="{{ url_for('student_pay', fid=blocked.id) }}">Pay fine</a> <a class="btn btn-sm btn-ghost" href="{{ url_for('student_offences') }}">Appeal / details</a></div>
+{% endif %}
+{% if not vehicles %}
+<div class="card empty">You need a vehicle first. <a href="{{ url_for('student_vehicles') }}">Add your car or bike</a>.</div>
+{% else %}
+<form method="post" action="{{ url_for('student_book') }}">
+<div class="card">
+  <div class="row">
+    <div><label class="f">Vehicle</label><select name="vehicle_id">{% for v in vehicles %}<option value="{{ v.id }}" {{ 'selected' if vehicle and vehicle.id==v.id }}>{{ v.number }} ({{ v.vtype }})</option>{% endfor %}</select></div>
+    <div><label class="f">Date</label><input type="date" name="date" value="{{ d.isoformat() }}" min="{{ today.isoformat() }}" required></div>
+    <div><label class="f">From</label><input type="time" name="start" value="{{ st.strftime('%H:%M') }}" required></div>
+    <div><label class="f">To</label><input type="time" name="end" value="{{ et.strftime('%H:%M') }}" required></div>
+    <div><button class="btn btn-ghost" formmethod="get" formaction="{{ url_for('student_parking') }}" formnovalidate>Check availability</button></div>
+  </div>
+</div>
+<div class="card mt">
+  <h2>Campus Parking Map</h2>
+  <p class="muted">Select an available green marker to choose a parking slot. Map markers show the campus parking zones; exact slot allocation is confirmed by the booking system.</p>
+  <div id="parkingMap" style="height:360px;border-radius:12px;overflow:hidden;border:1px solid var(--line);"></div>
+  <div class="legend mt"><span><i style="background:#16834a"></i>Available</span><span><i style="background:#c58a19"></i>Booked</span><span><i style="background:#b83232"></i>Occupied</span><span><i style="background:#59449a"></i>Reserved / unavailable</span></div>
+</div>
+<div class="card mt">
+  <p class="muted">Step 1: pick date and time, press <b>Check availability</b>. Step 2: select a green slot on the map or below. Step 3: confirm.</p>
+  {{ slot_grid(slots, statuses, selectable=True, vtype=vehicle.vtype if vehicle else None) }}
+  <p class="mt"><strong id="chosen">No slot selected</strong></p>
+  <button class="btn" {{ 'disabled' if blocked }}>Confirm booking</button>
+</div>
+</form>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const mapEl = document.getElementById('parkingMap');
+  if (!mapEl || !window.L) { if(mapEl) mapEl.innerHTML = '<p style="padding:16px">Map needs an internet connection to load.</p>'; return; }
+  // Campus-centre view for SRM Kattankulathur. Slot markers are illustrative zone positions,
+  // while availability and booking validation come from the live application database.
+  const map = L.map('parkingMap').setView([12.8232, 80.0444], 17);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 20, attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+  const slots = [
+    {% for slot in slots %}
+    {id: {{ slot.id }}, code: {{ slot.code|tojson }}, type: {{ slot.vtype|tojson }}, zone: {{ slot.zone|tojson }}, status: {{ statuses[slot.id]|tojson }}, reserved: {{ 'true' if slot.is_reserved else 'false' }}, selectable: {{ 'true' if statuses[slot.id] == 'Available' and slot.vtype == (vehicle.vtype if vehicle else '') and not slot.is_reserved else 'false' }}, lat: 12.8232 + ({{ loop.index0 }} % 5) * 0.00034, lng: 80.0444 + Math.floor({{ loop.index0 }} / 5) * 0.00038},
+    {% endfor %}
+  ];
+  function color(s) { return s === 'Available' ? '#16834a' : s === 'Booked' ? '#c58a19' : s === 'Occupied' ? '#b83232' : '#59449a'; }
+  slots.forEach(slot => {
+    const marker = L.circleMarker([slot.lat, slot.lng], {radius: 10, color:'#fff', weight:2, fillColor:color(slot.status), fillOpacity:1}).addTo(map);
+    marker.bindPopup(`<b>${slot.code}</b><br>${slot.type} · Zone ${slot.zone}<br>Status: ${slot.status}${slot.selectable ? '<br><b>Click to select</b>' : ''}`);
+    if (slot.selectable) marker.on('click', () => {
+      const radio = document.querySelector(`input[name="slot_id"][value="${slot.id}"]`);
+      if (radio) { radio.checked = true; radio.dispatchEvent(new Event('change', {bubbles:true})); }
+      marker.openPopup();
+    });
+  });
+  setTimeout(() => map.invalidateSize(), 200);
+});
+</script>
+{% endblock %}

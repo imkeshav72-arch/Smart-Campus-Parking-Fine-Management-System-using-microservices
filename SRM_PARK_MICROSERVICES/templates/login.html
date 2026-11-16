@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block public %}
+<div class="auth-page">
+  <section class="auth-hero">
+    <h1>Smart Campus Offence, Fine &amp; Parking System</h1>
+    <p>Book a bay, show your QR code at the gate, and settle any fine online. One place for students, security guards and the admin office.</p>
+    <ul><li>Book car and bike slots by date and time</li><li>Offences are verified by the admin with photo proof</li><li>Unpaid fines pause new bookings until paid</li></ul>
+  </section>
+  <section class="auth-card">
+    <h2>Sign in</h2>
+    <form method="post">
+      <div class="role-tabs">
+        <label><input type="radio" name="role" value="student" checked><span>Student</span></label>
+        <label><input type="radio" name="role" value="guard"><span>Guard</span></label>
+        <label><input type="radio" name="role" value="admin"><span>Admin</span></label>
+      </div>
+      <label class="f" for="email">Email</label><input id="email" type="email" name="email" required autofocus>
+      <label class="f" for="password">Password</label><input id="password" type="password" name="password" required>
+      <p><button class="btn" style="width:100%">Sign in</button></p>
+    </form>
+    <p>New student? <a href="{{ url_for('register') }}">Create an account</a></p>
+
+  </section>
+</div>
+{% endblock %}

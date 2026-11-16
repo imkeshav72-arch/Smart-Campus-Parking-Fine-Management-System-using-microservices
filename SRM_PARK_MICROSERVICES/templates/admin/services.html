@@ -1,0 +1,36 @@
+{% extends 'base.html' %}{% from '_macros.html' import badge %}
+{% block heading %}Microservices{% endblock %}
+{% block content %}
+<div class="banner"><b>Microservice architecture:</b> the main Smart Campus app (port 5000) talks to two independent services over REST/HTTP. Each service has its own process, port and database.</div>
+
+<div class="card" style="margin-bottom:16px;text-align:center">
+  <h2>Architecture</h2>
+  <div style="display:flex;gap:14px;align-items:center;justify-content:center;flex-wrap:wrap;font-size:.92rem">
+    <div style="border:2px solid #1457c4;border-radius:10px;padding:12px 16px"><b>Main App</b><br>Flask · :5000<br><small>students · guards · admin · fines</small></div>
+    <div style="font-size:1.4rem">⇄</div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="border:2px solid {{ '#15803d' if services[0].up else '#c62828' }};border-radius:10px;padding:10px 16px"><b>💳 Payment Service</b> :5001<br><small>orders · fake QR checkout · signed result</small></div>
+      <div style="border:2px solid {{ '#15803d' if services[1].up else '#c62828' }};border-radius:10px;padding:10px 16px"><b>🔔 Notification Service</b> :5002<br><small>email / SMS / in-app log</small></div>
+    </div>
+  </div>
+  <p class="muted" style="margin-top:10px;font-size:.85rem">Payment Service → Notification Service (service-to-service call after every payment)</p>
+</div>
+
+<div class="grid g2">
+{% for s in services %}
+  <div class="card stat {{ 'g' if s.up else 'r' }}"><h3>{{ s.name }}</h3>
+    <div class="n" style="font-size:1.3rem">{{ '● UP' if s.up else '● DOWN' }}</div>
+    <div class="l">{{ s.url }} (port {{ s.port }}) · <a href="{{ s.url }}" target="_blank">open service dashboard</a></div></div>
+{% endfor %}
+</div>
+
+<div class="card mt"><h2>Recent orders (from Payment Service API)</h2>
+<table><thead><tr><th>Order</th><th>Receipt</th><th>Amount</th><th>Status</th><th>Payment ID</th><th>Method</th></tr></thead><tbody>
+{% for o in orders %}<tr><td class="code">{{ o.id }}</td><td>{{ o.receipt }}</td><td>₹{{ '%.2f'|format(o.amount/100) }}</td><td>{{ badge('Success' if o.status=='paid' else 'Pending') }}</td><td class="code">{{ o.payment_id or '—' }}</td><td>{{ o.method or '—' }}</td></tr>
+{% else %}<tr><td colspan="6" class="empty">{{ 'No orders yet.' if services[0].up else 'Payment Service is not running.' }}</td></tr>{% endfor %}</tbody></table></div>
+
+<div class="card mt"><h2>Recent messages (from Notification Service API)</h2>
+<table><thead><tr><th>Time</th><th>Channel</th><th>To</th><th>Message</th><th>From</th></tr></thead><tbody>
+{% for n in logs %}<tr><td>{{ n.created_at }}</td><td>{{ n.channel }}</td><td>{{ n.recipient }}</td><td>{{ n.message }}</td><td>{{ n.source }}</td></tr>
+{% else %}<tr><td colspan="5" class="empty">{{ 'No messages yet.' if services[1].up else 'Notification Service is not running.' }}</td></tr>{% endfor %}</tbody></table></div>
+{% endblock %}

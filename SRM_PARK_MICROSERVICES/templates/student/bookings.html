@@ -1,0 +1,11 @@
+{% extends 'base.html' %}{% from '_macros.html' import badge %}
+{% block heading %}Booking History{% endblock %}
+{% block content %}
+<div class="card"><table><thead><tr><th>Booking ID</th><th>Vehicle</th><th>Slot</th><th>Date</th><th>Time</th><th>Status</th><th></th></tr></thead><tbody>
+{% for b in items %}<tr><td class="code" style="font-size:.9rem">{{ b.booking_code }}</td><td>{{ b.vehicle.number }}</td><td>{{ b.slot.code }}</td><td>{{ b.date.strftime('%d %b %Y') }}</td>
+<td>{{ b.start_time.strftime('%H:%M') }}–{{ b.end_time.strftime('%H:%M') }}</td><td>{{ badge(b.status) }}</td>
+<td class="right"><a class="btn btn-sm btn-ghost" href="{{ url_for('student_booking_detail', bid=b.id) }}">QR</a>
+{% if b.status == 'Booked' %}<form class="inline" method="post" action="{{ url_for('student_booking_cancel', bid=b.id) }}" data-confirm="Cancel this booking?"><button class="btn btn-sm btn-bad">Cancel</button></form>{% endif %}</td></tr>
+{% else %}<tr><td colspan="7" class="empty">No bookings yet.</td></tr>{% endfor %}
+</tbody></table></div>
+{% endblock %}

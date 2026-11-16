@@ -1,0 +1,7 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Payment Service</title>
+<style>body{font-family:system-ui,Arial;margin:30px;background:#f2f4f7}table{border-collapse:collapse;background:#fff;width:100%}td,th{padding:8px 12px;border-bottom:1px solid #e3e7ec;text-align:left;font-size:.9rem}th{background:#0b2447;color:#fff}.up{color:#15803d;font-weight:700}</style></head><body>
+<h2>💳 Payment Service <span class="up">● UP</span> <small>(Microservice 1 · port 5001)</small></h2>
+<p>Razorpay-style FAKE gateway. REST API: <code>POST /api/orders</code>, <code>GET /api/orders/&lt;id&gt;</code>, hosted page <code>/checkout/&lt;id&gt;</code>.</p>
+<table><tr><th>Order</th><th>Receipt</th><th>Amount</th><th>Status</th><th>Payment ID</th><th>Method</th><th>Created</th></tr>
+{% for r in rows %}<tr><td>{{ r.id }}</td><td>{{ r.receipt }}</td><td>₹{{ '%.2f'|format(r.amount/100) }}</td><td>{{ r.status }}</td><td>{{ r.payment_id or '—' }}</td><td>{{ r.method or '—' }}</td><td>{{ r.created_at }}</td></tr>
+{% else %}<tr><td colspan="7">No orders yet.</td></tr>{% endfor %}</table></body></html>

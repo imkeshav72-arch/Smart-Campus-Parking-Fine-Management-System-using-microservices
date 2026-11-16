@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+{% block heading %}Fine Amounts{% endblock %}
+{% block content %}
+<div class="card" style="max-width:560px"><p class="muted">These amounts pre-fill the fine when you approve an offence report.</p>
+<form method="post">{% for t in types %}<label class="f">{{ t }} (₹)</label><input type="number" min="0" step="1" name="{{ t }}" value="{{ '%.0f'|format(rates[t]) }}" required>{% endfor %}
+<p><button class="btn">Save fine amounts</button></p></form></div>
+{% endblock %}

@@ -1,0 +1,7 @@
+<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="refresh" content="5"><title>Notification Service</title>
+<style>body{font-family:system-ui,Arial;margin:30px;background:#f2f4f7}table{border-collapse:collapse;background:#fff;width:100%}td,th{padding:8px 12px;border-bottom:1px solid #e3e7ec;text-align:left;font-size:.9rem}th{background:#0b2447;color:#fff}.up{color:#15803d;font-weight:700}</style></head><body>
+<h2>🔔 Notification Service <span class="up">● UP</span> <small>(Microservice 2 · port 5002)</small></h2>
+<p>Receives <code>POST /api/notify</code> from other services. Auto-refreshes every 5 s.</p>
+<table><tr><th>#</th><th>Time</th><th>Channel</th><th>To</th><th>Event</th><th>Message</th><th>From</th><th>Status</th></tr>
+{% for r in rows %}<tr><td>{{ r.id }}</td><td>{{ r.created_at }}</td><td>{{ r.channel }}</td><td>{{ r.recipient }}</td><td>{{ r.event }}</td><td>{{ r.message }}</td><td>{{ r.source }}</td><td>{{ r.status }}</td></tr>
+{% else %}<tr><td colspan="8">No notifications yet.</td></tr>{% endfor %}</table></body></html>

@@ -1,0 +1,17 @@
+{% extends 'base.html' %}{% from '_macros.html' import badge %}
+{% block heading %}Booking {{ b.booking_code }}{% endblock %}
+{% block content %}
+<div class="grid g2">
+<div class="card qr-box"><h2>Your parking QR code</h2>
+  <img src="{{ url_for('static', filename='qrcodes/' + b.verification.qr_file) }}" alt="Booking QR code">
+  <p class="code">{{ b.booking_code }}</p>
+  <a class="btn btn-ghost btn-sm" download href="{{ url_for('static', filename='qrcodes/' + b.verification.qr_file) }}">Download QR</a>
+  <p class="muted">Show this to the security guard at the gate.</p></div>
+<div class="card"><h2>Booking details</h2>
+<dl class="kv"><dt>Status</dt><dd>{{ badge(b.status) }}</dd><dt>Slot</dt><dd>{{ b.slot.code }} ({{ b.slot.vtype }}, Zone {{ b.slot.zone }})</dd>
+<dt>Vehicle</dt><dd>{{ b.vehicle.number }}</dd><dt>Date</dt><dd>{{ b.date.strftime('%A, %d %b %Y') }}</dd>
+<dt>Time</dt><dd>{{ b.start_time.strftime('%H:%M') }} – {{ b.end_time.strftime('%H:%M') }}</dd>
+<dt>Verified by guard</dt><dd>{{ 'Yes, ' + b.verification.verified_at.strftime('%H:%M') if b.verification.verified else 'Not yet' }}</dd></dl>
+<p class="mt"><a class="btn btn-ghost" href="{{ url_for('student_bookings') }}">Back to history</a></p></div>
+</div>
+{% endblock %}

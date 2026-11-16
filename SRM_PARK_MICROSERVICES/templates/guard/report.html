@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block heading %}Report Parking Offence{% endblock %}
+{% block content %}
+<div class="card" style="max-width:720px"><form method="post" enctype="multipart/form-data">
+  <div class="row"><div><label class="f">Vehicle number</label><input type="text" name="vehicle_number" placeholder="TN 21 AB 1234" required></div>
+  <div><label class="f">Offence type</label><select name="offence_type">{% for t in types %}<option>{{ t }}</option>{% endfor %}</select></div></div>
+  <label class="f">Link to student (important for fine payment)</label>
+  <select name="student_id" required><option value="">Select the student responsible</option>{% for student in students %}<option value="{{ student.id }}">{{ student.name }} — {{ student.roll_no }} ({{ student.email }})</option>{% endfor %}</select>
+  <p class="muted">Select the responsible student. The fine will be added to this student's My Fines only after Admin approves the report.</p>
+  <label class="f">Location / slot</label><input type="text" name="location" placeholder="Block A entrance, slot C08…">
+  <label class="f">Details</label><textarea name="description" rows="4" required placeholder="Describe what you saw"></textarea>
+  <div class="row"><div><label class="f">📷 Take photo (camera)</label><input type="file" name="photo_camera" accept="image/*" capture="environment"></div>
+  <div><label class="f">🖼️ Choose from gallery</label><input type="file" name="photo_gallery" accept="image/*"></div></div>
+  <p class="muted">On a laptop the camera button opens the file picker. One photo is required as evidence.</p>
+  <p><button class="btn btn-y">Submit report to admin</button></p>
+</form></div>
+{% endblock %}

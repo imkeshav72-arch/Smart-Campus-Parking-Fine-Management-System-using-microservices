@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block heading %}Submit Appeal{% endblock %}
+{% block content %}
+<div class="card" style="max-width:640px"><h2>Appeal: {{ o.offence_type }} ({{ o.vehicle_number }})</h2>
+<p class="muted">Reported on {{ o.created_at.strftime('%d %b %Y') }} at {{ o.location }}. {{ o.description }}</p>
+{% if o.photo %}<img class="photo" style="max-width:320px" src="{{ url_for('static', filename='uploads/' + o.photo) }}" alt="Evidence">{% endif %}
+<form method="post"><label class="f">Why should this offence be cancelled?</label>
+<textarea name="message" rows="5" required minlength="10" placeholder="Explain what happened…"></textarea>
+<p><button class="btn">Submit appeal</button> <a class="btn btn-ghost" href="{{ url_for('student_offences') }}">Cancel</a></p></form></div>
+{% endblock %}

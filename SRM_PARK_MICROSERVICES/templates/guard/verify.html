@@ -1,0 +1,32 @@
+{% extends 'base.html' %}{% from '_macros.html' import badge %}
+{% block heading %}Verify Parking QR{% endblock %}
+{% block content %}
+<div class="grid g2">
+<div class="card"><h2>Scan or enter code</h2>
+  <form id="verifyForm" method="post" action="{{ url_for('guard_verify') }}">
+    <label class="f">Booking code (or scanned QR text)</label>
+    <input id="codeInput" type="text" name="code" value="{{ raw }}" placeholder="BK2610311A2B" required>
+    <p><button class="btn">Verify</button></p>
+  </form>
+  <hr style="border:0;border-top:1px solid var(--bd)">
+  <p><button type="button" class="btn btn-y" id="startScan">📷 Scan with camera</button></p>
+  <video id="scanVideo" hidden muted></video>
+  <label class="f">…or upload a QR image / screenshot</label><input type="file" id="qrFile" accept="image/*">
+</div>
+<div class="card"><h2>Result</h2>
+{% if not result %}<p class="muted">Scan a QR code to see the booking here.</p>
+{% else %}
+  <div class="flash {{ 'success' if result.ok else 'danger' }}"><span><b>{{ '✔ VALID' if result.ok else '✖ NOT VALID' }}</b> — {{ result.msg }}</span></div>
+  {% if result.warning %}<div class="flash warning"><span>{{ result.warning }}</span></div>{% endif %}
+  {% if result.b %}{% set b = result.b %}
+  <dl class="kv"><dt>Booking</dt><dd>{{ b.booking_code }}</dd><dt>Student</dt><dd>{{ b.student.name }} ({{ b.student.roll_no }})</dd>
+  <dt>Vehicle</dt><dd>{{ b.vehicle.number }} ({{ b.vehicle.vtype }})</dd><dt>Slot</dt><dd>{{ b.slot.code }} · Zone {{ b.slot.zone }}</dd>
+  <dt>When</dt><dd>{{ b.date.strftime('%d %b %Y') }}, {{ b.start_time.strftime('%H:%M') }}–{{ b.end_time.strftime('%H:%M') }}</dd><dt>Status</dt><dd>{{ badge(b.status) }}</dd></dl>
+  {% if result.ok %}<form method="post" action="{{ url_for('guard_booking_status', bid=b.id) }}" class="mt">
+    {% if b.status == 'Booked' %}<button class="btn btn-ok" name="status" value="Occupied">Mark vehicle arrived (Occupied)</button>
+    {% elif b.status == 'Occupied' %}<button class="btn" name="status" value="Completed">Mark vehicle exited</button>{% endif %}</form>{% endif %}
+  {% endif %}
+{% endif %}</div>
+</div>
+{% endblock %}
+{% block scripts %}<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>{% endblock %}

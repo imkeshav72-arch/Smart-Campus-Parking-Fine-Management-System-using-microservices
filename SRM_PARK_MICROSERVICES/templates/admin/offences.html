@@ -1,0 +1,11 @@
+{% extends 'base.html' %}{% from '_macros.html' import badge %}
+{% block heading %}Offence Reports{% endblock %}
+{% block content %}
+<p>{% for s in ['', 'Pending', 'Approved', 'Rejected', 'Overturned'] %}<a class="btn btn-sm {{ '' if status==s else 'btn-ghost' }}" href="{{ url_for('admin_offences', status=s) }}">{{ s or 'All' }}</a> {% endfor %}</p>
+<div class="card"><table><thead><tr><th>#</th><th>Date</th><th>Vehicle</th><th>Student</th><th>Offence</th><th>Reported by</th><th>Status</th><th></th></tr></thead><tbody>
+{% for o in items %}<tr><td>{{ o.id }}</td><td>{{ o.created_at.strftime('%d %b %Y') }}</td><td>{{ o.vehicle_number }}</td><td>{{ o.student.name if o.student else '— unregistered —' }}</td>
+<td>{{ o.offence_type }}</td><td>{{ o.guard.name if o.guard }}</td><td>{{ badge(o.status) }}</td>
+<td class="right"><a class="btn btn-sm {{ '' if o.status=='Pending' else 'btn-ghost' }}" href="{{ url_for('admin_offence_review', oid=o.id) }}">{{ 'Review' if o.status=='Pending' else 'View' }}</a></td></tr>
+{% else %}<tr><td colspan="8" class="empty">No reports in this list.</td></tr>{% endfor %}
+</tbody></table></div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}{% from '_macros.html' import badge %}
+{% block heading %}Student Dashboard{% endblock %}
+{% block content %}
+{% if restricted %}
+<div class="banner"><b>Booking restricted.</b> You have {{ fines|length }} unpaid fine(s) totalling <b>₹{{ '%.0f'|format(stats.pending_amount) }}</b>.
+  {% for f in fines %}<div>• {{ f.reason }} — ₹{{ '%.0f'|format(f.amount) }} <a href="{{ url_for('student_pay', fid=f.id) }}">Pay now</a></div>{% endfor %}
+  <div class="muted">New bookings for days after the fine date are blocked until it is paid or an appeal is accepted.</div></div>
+{% endif %}
+<div class="grid g4">
+  <div class="card stat"><div class="n">{{ stats.vehicles }}</div><div class="l">My vehicles</div></div>
+  <div class="card stat g"><div class="n">{{ stats.active }}</div><div class="l">Upcoming bookings</div></div>
+  <div class="card stat y"><div class="n">{{ stats.offences }}</div><div class="l">Approved offences</div></div>
+  <div class="card stat r"><div class="n">₹{{ '%.0f'|format(stats.pending_amount) }}</div><div class="l">Pending fines</div></div>
+</div>
+<div class="card mt"><div class="page-head"><h2>Recent bookings</h2><a class="btn btn-sm" href="{{ url_for('student_parking') }}">Book parking</a></div>
+<table><thead><tr><th>ID</th><th>Slot</th><th>Date</th><th>Time</th><th>Status</th><th></th></tr></thead><tbody>
+{% for b in bookings %}<tr><td class="code" style="font-size:.9rem">{{ b.booking_code }}</td><td>{{ b.slot.code }}</td><td>{{ b.date.strftime('%d %b %Y') }}</td>
+<td>{{ b.start_time.strftime('%H:%M') }}–{{ b.end_time.strftime('%H:%M') }}</td><td>{{ badge(b.status) }}</td><td><a href="{{ url_for('student_booking_detail', bid=b.id) }}">View QR</a></td></tr>
+{% else %}<tr><td colspan="6" class="empty">No bookings yet. Add a vehicle, then book a slot.</td></tr>{% endfor %}
+</tbody></table></div>
+{% endblock %}

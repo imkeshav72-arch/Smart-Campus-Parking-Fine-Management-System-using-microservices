@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block heading %}Edit Slot {{ s.code }}{% endblock %}
+{% block content %}
+<div class="card" style="max-width:520px"><form method="post">
+  <label class="f">Code</label><input type="text" name="code" value="{{ s.code }}" required>
+  <label class="f">Type</label><select name="vtype"><option {{ 'selected' if s.vtype=='Car' }}>Car</option><option {{ 'selected' if s.vtype=='Bike' }}>Bike</option></select>
+  <label class="f">Zone</label><input type="text" name="zone" value="{{ s.zone }}">
+  <label class="f">Note</label><input type="text" name="note" value="{{ s.note or '' }}">
+  <label class="check"><input type="checkbox" name="is_reserved" {{ 'checked' if s.is_reserved }}> Reserved (not bookable)</label>
+  <p><button class="btn">Save changes</button> <a class="btn btn-ghost" href="{{ url_for('admin_slots') }}">Cancel</a></p>
+</form></div>
+{% endblock %}
